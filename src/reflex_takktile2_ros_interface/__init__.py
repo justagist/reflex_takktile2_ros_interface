@@ -1,1 +1,1 @@
-from .takktile2_hand.py import Takktile2Hand
+from .takktile2_hand import Takktile2Hand

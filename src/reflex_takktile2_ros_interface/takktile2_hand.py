@@ -1,6 +1,21 @@
 import rospy
 from std_msgs.msg import Float32
 
+# /***************************************************************************
+# Copyright (c) 2019, Saif Sidhik
+ 
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# **************************************************************************/
 import numpy as np
 import quaternion
 
@@ -15,7 +30,7 @@ from reflex_takktile2_ros_interface.config import takktile2_config
 import threading
 
 
-class Takktile2Hand(RobotInterface):
+class Takktile2Hand():
 
     def __init__(self, robot_name = "takktile2_hand", on_state_callback=None):
         """
@@ -27,7 +42,7 @@ class Takktile2Hand(RobotInterface):
         none, store the trajectories
         """
 
-        self._logger = logging.getLogger(__name__,'info')
+        self._logger = logging.getLogger(__name__)
 
         self._ready = False
 
@@ -77,8 +92,6 @@ class Takktile2Hand(RobotInterface):
 
         self._all_joint_names = []
         self._all_joint_names = self._config["all_joint_names"]
-        # for finger_name in self._config["finger_order"]:
-        #     self._all_joint_names += self._joint_name_map[finger_name]
 
         self._state = None
 
@@ -135,7 +148,6 @@ class Takktile2Hand(RobotInterface):
 
     def angles(self):
         return self._state['position']
-        # return np.zeros(self.n_joints())
 
     def joint_velocities(self):
         return self._state['velocity']
@@ -176,13 +188,7 @@ class Takktile2Hand(RobotInterface):
 
         rotation = quaternion.quaternion(w, x, y, z)
 
-        # formula for converting quarternion to rotation matrix
-
         if ori_type == 'mat':
-
-            # rotation = np.array([[1.-2.*(y**2+z**2),    2.*(x*y-z*w),           2.*(x*z+y*w)],\
-            #                      [2.*(x*y+z*w),         1.-2.*(x**2+z**2),      2.*(y*z-x*w)],\
-            #                      [2.*(x*z-y*w),         2.*(y*z+x*w),           1.-2.*(x**2+y**2)]])
 
             rotation = quaternion.as_rotation_matrix(rotation)
 
@@ -251,7 +257,7 @@ class Takktile2Hand(RobotInterface):
 
     def set_tactile_threshold(self, threshold_list):
         '''
-            Threshold list is a list of list of shape 3 x 14 (14 sensors per finger).
+            @param threshold_list: list of list of shape 3 x 14 (14 sensors per finger).
         '''
         self._set_tactile_threshold(threshold_list)
 
