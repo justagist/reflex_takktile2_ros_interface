@@ -128,23 +128,14 @@ class Takktile2Hand():
     def exec_position_cmd(self, cmd):
         self._pos_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
 
-    def exec_position_cmd_delta(self, cmd):
-        self._logger.warning("Position command delta not implemented.")
-
     def exec_velocity_cmd(self, cmd):
         self._vel_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
-
-    def exec_torque_cmd(self, cmd):
-        self._logger.warning("Torque commands not implemented.")
 
     def exec_force_cmd(self, cmd):
         self._force_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
 
     def move_to_joint_position(self, cmd):
         self.exec_position_cmd(cmd)
-
-    def move_to_joint_pos_delta(self, cmd):
-        self._logger.warning("move_to_joint_pos_delta not implemented")
 
     def angles(self):
         return self._state['position']
@@ -155,53 +146,8 @@ class Takktile2Hand():
     def joint_efforts(self):
         return self._state['effort']
 
-    def ee_velocity(self, numerical=False):
-        self._logger.warning("ee_velocity not implemented")
-
     def q_mean(self):
         return self._q_mean
-
-    def inertia(self, joint_angles=None):
-        self._logger.warning("inertia not implemented")
-
-    def cartesian_velocity(self, joint_velocities=None):
-        self._logger.warning("cartesian_velocity not implemented")
-
-    def forward_kinematics(self, joint_angles=None, ori_type='quat'):
-
-        if joint_angles is None:
-
-            argument = None
-
-        else:
-
-            argument = dict(zip(self.joint_names(), joint_angles))
-
-        # combine the names and joint angles to a dictionary, that only is accepted by kdl
-        pose = np.array(self._kinematics.forward_position_kinematics(argument))
-        position = pose[0:3][:, None]  # senting as  column vector
-
-        w = pose[6]
-        x = pose[3]
-        y = pose[4]
-        z = pose[5]  # quarternions
-
-        rotation = quaternion.quaternion(w, x, y, z)
-
-        if ori_type == 'mat':
-
-            rotation = quaternion.as_rotation_matrix(rotation)
-
-        elif ori_type == 'eul':
-
-            rotation = quaternion.as_euler_angles(rotation)
-        elif ori_type == 'quat':
-            pass
-
-        return position, rotation
-
-    def inverse_kinematics(self, position, orientation=None):
-        self._logger.warning("inverse_kinematics not implemented")
 
     def n_cmd(self):
         return self._nu
@@ -219,25 +165,12 @@ class Takktile2Hand():
     def joint_names(self):
         return self._all_joint_names
 
-    def links(self):
-        self._logger.warning("links not implemented")
-
     def joint_limits(self):
         return self._jnt_limits
-
-    def jacobian(self, joint_angles=None):
-        self._logger.warning("jacobian not implemented")
-        return 0.0
 
     def state(self):
         with self._lock:
             return self._state
-
-    def ee_pose(self):
-        self._logger.warning("ee_pose commands not implemented.")
-
-    def set_sampling_rate(self, sampling_rate=100):
-        self._logger.warning("set_sampling_rate commands not implemented.")
 
     def calibrate_fingers(self):
         self._logger.info("Calibrating fingers...")
