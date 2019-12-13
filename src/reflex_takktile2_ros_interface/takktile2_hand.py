@@ -55,6 +55,7 @@ class Takktile2Hand():
 
         self._ready = True  # Hand is ready to be used
         self._lock = threading.Lock()
+        self._preshape = 3.14/6
 
     def _update_state(self, new_state = None):
 
@@ -126,13 +127,27 @@ class Takktile2Hand():
             self._update_state(new_state = msg)
 
     def exec_position_cmd(self, cmd):
-        self._pos_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
+        preshape = self._preshape if len(cmd) < 4 else cmd[3]
+        self._pos_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = preshape)
 
     def exec_velocity_cmd(self, cmd):
+        preshape = self._preshape if len(cmd) < 4 else cmd[3]
         self._vel_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
 
-    def exec_force_cmd(self, cmd):
-        self._force_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = cmd[3])
+    def exec_force_cmd(self, cmd, timeout = 5.0):
+
+        preshape = self._preshape if len(cmd) < 4 else cmd[3]
+        self._force_cmd_pub.publish(f1 = cmd[0], f2 = cmd[1], f3 = cmd[2], preshape = preshape)
+
+        end_time = rospy.Time.now().to_sec() + timeout
+
+        while rospy.Time.now().to_sec() < end_time:
+            if np.allclose(self.joint_velocities(), np.zeros(4), atol = 0.001):
+                self._logger.debug("Force control successful")
+                return
+
+        self._logger.warn("Force control timed out")
+        self.exec_position_cmd(self.angles())
 
     def move_to_joint_position(self, cmd):
         self.exec_position_cmd(cmd)
@@ -199,4 +214,10 @@ class Takktile2Hand():
         self.calibrate_tactile()
         rospy.sleep(3.0)
         self.calibrate_fingers()
+
+    def set_preshape(self, value):
+        self._preshape = value
+        angles = self.angles()
+        angles[3] = self._preshape
+        self.exec_position_cmd(angles)
 
