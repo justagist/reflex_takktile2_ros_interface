@@ -172,12 +172,24 @@ class Takktile2Hand():
 
 
     def tuck(self):
+        """
+        Move fingers to mean position.
+        """
         self.move_to_joint_position(self._q_mean)
 
     def untuck(self):
+        """
+        Move fingers to open positions.
+        """
         self.move_to_joint_position([j['lower'] for j in self._jnt_limits])
 
     def joint_names(self):
+        """
+        Return names of all joints
+
+        :return: Names of joints (ordered)
+        :rtype: [str]
+        """
         return self._all_joint_names
 
     def joint_limits(self):
@@ -188,15 +200,26 @@ class Takktile2Hand():
             return self._state
 
     def calibrate_fingers(self):
+        """
+        Calibrate finger positions.
+        """
         self._logger.info("Calibrating fingers...")
         self._finger_calibration_request()
 
     def calibrate_tactile(self):
+        """
+        Calibrate tactile sensors.
+        """
         self._logger.info("Calibrating tactile sensors...")
         self._tactile_calibration_request()
 
     def enable_tactile_stops(self, enable = True):
+        """
+        Enable/disable automatic stopping of hand using tactile sense.
 
+        :param enable: defaults to True
+        :type enable: bool, optional
+        """
         self._tactile_stops_enabled = enable
         if enable:
             self._enable_tactile_stop_request()
@@ -205,17 +228,26 @@ class Takktile2Hand():
 
     def set_tactile_threshold(self, threshold_list):
         '''
-            @param threshold_list: list of list of shape 3 x 14 (14 sensors per finger).
+            :param threshold_list: list of list of shape 3 x 14 (14 sensors per finger).
+            :type threshold_list: [float]
         '''
         self._set_tactile_threshold(threshold_list)
 
     def calibrate(self):
-
+        """
+        Calibrate the reflex hand (tactile and fingers) using the calibration routine.
+        """
         self.calibrate_tactile()
         rospy.sleep(3.0)
         self.calibrate_fingers()
 
     def set_preshape(self, value):
+        """
+        Set preshape angle
+
+        :param value: preshape value
+        :type value: [float]
+        """
         self._preshape = value
         angles = self.angles()
         angles[3] = self._preshape
